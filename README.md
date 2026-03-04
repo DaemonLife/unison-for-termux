@@ -24,6 +24,8 @@ This guide uses OCaml 5.3.0, but other versions should also work. This process c
 
 ```sh
 OCAML_VERSION=5.3.0
+TARGET="aarch64-unknown-linux-android"
+API=28
 
 mkdir -p $HOME/tmp
 curl -L https://github.com/ocaml/ocaml/releases/download/${OCAML_VERSION}/ocaml-${OCAML_VERSION}.tar.gz \
@@ -33,7 +35,7 @@ cd "$HOME/tmp/ocaml-${OCAML_VERSION}"
 
 # Configure OCaml for Termux/Android
 # Termux provides the $PREFIX variable.
-./configure --prefix=$PREFIX --disable-warn-error --without-afl LDFLAGS="-landroid-shmem"
+./configure --prefix=$PREFIX --disable-warn-error --without-afl CC="clang --target=${TARGET}${API}" LDFLAGS="-landroid-shmem"
 
 # Build and install OCaml
 make world
@@ -46,16 +48,12 @@ ocaml --version
 ocamlc --version
 ```
 
-If you run into issues:
-- "Undeclared function 'getentropy'": See [this solution](https://github.com/omeyenburg/unison-for-termux/issues/1) by [terminatorbs](https://github.com/terminatorbs).  
-  Add a flag like `--target=aarch64-unknown-linux-android28` to `./configure` where 28 is the android api version you want to target, must be at least 28.
-
 ## Building Unison
 
 Now that OCaml is installed, you can compile Unison. This guide uses Unison 2.53.7.
 
 ```sh
-UNISON_VERSION=2.53.7
+UNISON_VERSION=2.53.8
 
 mkdir -p $HOME/tmp
 curl -L https://github.com/bcpierce00/unison/archive/v${UNISON_VERSION}.tar.gz \
@@ -79,7 +77,7 @@ unison -version
 
 ## Usage
 
-If you encounter errors while running unison, try to use the options `-ignorelocks` and possibly `-perms=0` (or `-fat`, which includes `-perms=0`) as well.
+If you encounter errors while running unison, try to use the options `-ignorelocks`. And possibly `-perms=0` (or `-fat`, which includes `-perms=0`) as well.
 Though both have downsides: With `-ignorelocks`, you must be careful not to start multiple sync jobs at once.
 When using `-perms=0`, no permissions will be synchronized. More information in the [Unison Manual](https://man.archlinux.org/man/unison.1.en).
 On a rooted device, there are ways to use Unison without these flags.
